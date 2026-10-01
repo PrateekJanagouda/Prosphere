@@ -1,10 +1,8 @@
-import { Suspense, lazy, useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { SectionHead } from './SectionHead';
-import { SceneBoundary } from './SceneBoundary';
 import { useNow } from '../hooks/useNow';
 import { formatBytes, formatExpiry, formatRemaining, randomId } from '../lib/format';
-
-const CapsuleScene = lazy(() => import('../three/CapsuleScene'));
+import { setCapsule } from '../three/store';
 
 // Demo-only limits. Real limits must come from the backend config and be enforced server-side too.
 const DEMO_MAX_BYTES = 25 * 1024 * 1024;
@@ -23,7 +21,7 @@ function validate(file) {
   return '';
 }
 
-export function ShareDemo({ reduced }) {
+export function ShareDemo() {
   const inputId = useId();
   const hintId = useId();
   const errorId = useId();
@@ -96,36 +94,33 @@ export function ShareDemo({ reduced }) {
   }
 
   const capsuleState = phase === 'expired' ? 'expired' : file ? 'holding' : 'empty';
+  // Tell the 3D scene: the card inside the sphere appears or dissolves with this state.
+  useEffect(() => setCapsule(capsuleState), [capsuleState]);
+  useEffect(() => () => setCapsule('empty'), []);
   const statusLine =
     phase === 'expired'
-      ? 'STATUS // EXPIRED'
+      ? 'Expired'
       : phase === 'ready'
-        ? `STATUS // ACTIVE · T-${formatRemaining(link.expiresAt - now)}`
+        ? `Active · ${formatRemaining(link.expiresAt - now)} left`
         : file
-          ? 'STATUS // HELD LOCALLY · NOT UPLOADED'
-          : 'STATUS // EMPTY';
+          ? 'On your device · not uploaded'
+          : 'Waiting for a file';
 
   return (
     <section id="share" className="section" aria-labelledby="share-title">
-      <div className="container">
-        <SectionHead index="03" label="Share a file" title="Try the flow" id="share-title">
-          This is a working demo of the experience. Your file never leaves this device.
-        </SectionHead>
-
-        <div className="share frame">
-          <div className="capsule">
-            <SceneBoundary>
-              <Suspense fallback={null}>
-                <CapsuleScene state={capsuleState} reduced={reduced} />
-              </Suspense>
-            </SceneBoundary>
-            <div className="capsule__hud mono" aria-hidden="true">
-              <span>CAPSULE/{link ? link.id.slice(0, 6).toUpperCase() : '——————'}</span>
-              <span className={phase === 'ready' ? 'is-live' : ''}>{statusLine}</span>
-            </div>
-          </div>
-
-          <div className="share__panel">
+      <div className="split split--flip split--share">
+        <div className="share-slot">
+          <div className="orb-slot orb-slot--share" data-orb="3" />
+          <p className={`status${phase === 'ready' ? ' status--live' : ''}${phase === 'expired' ? ' status--gone' : ''}`}>
+            <span className="status__dot" aria-hidden="true" />
+            {statusLine}
+          </p>
+        </div>
+        <div className="split__text">
+          <SectionHead eyebrow="Share a file" title="Try the flow" id="share-title">
+            A working demo of the experience. Your file never leaves this device.
+          </SectionHead>
+          <div className="share__panel glass reveal">
             <p className="sr-only" aria-live="polite">{announce}</p>
 
             {phase === 'compose' && (
@@ -159,7 +154,7 @@ export function ShareDemo({ reduced }) {
                         <strong>{file.name}</strong>
                         <span className="mono">{formatBytes(file.size)} · not uploaded</span>
                       </div>
-                      <label htmlFor={inputId} className="btn btn--ghost btn--sm">Change</label>
+                      <label htmlFor={inputId} className="btn btn--quiet btn--sm">Change</label>
                     </div>
                   ) : (
                     <label htmlFor={inputId} className="drop__label">
@@ -167,7 +162,7 @@ export function ShareDemo({ reduced }) {
                       <span className="drop__title">Choose a file <span>or drop it here</span></span>
                     </label>
                   )}
-                  <p id={hintId} className="drop__hint mono">PDF · images · Word · text — demo limit 25 MB</p>
+                  <p id={hintId} className="drop__hint">PDF · images · Word · text — demo limit 25 MB</p>
                 </div>
 
                 {error && (
@@ -189,7 +184,7 @@ export function ShareDemo({ reduced }) {
                       </button>
                     ))}
                   </div>
-                  <p className="ttl__note mono">
+                  <p className="ttl__note">
                     {duration
                       ? `Would expire ${formatExpiry(Date.now() + DEMO_DURATIONS.find((d) => d.id === duration).ms)}`
                       : 'Demo durations. Pick one to see the exact expiry.'}
@@ -197,7 +192,7 @@ export function ShareDemo({ reduced }) {
                 </fieldset>
 
                 <div className="share__actions">
-                  <button type="button" className="btn btn--accent" disabled={!file || !duration} onClick={createLink}>
+                  <button type="button" className="btn btn--primary" disabled={!file || !duration} onClick={createLink}>
                     Create demo link
                   </button>
                   <p className="share__fine">Demo only: no file is uploaded or shared.</p>
@@ -207,21 +202,21 @@ export function ShareDemo({ reduced }) {
 
             {phase === 'ready' && link && (
               <div className="result">
-                <p className="mono result__k">Demo link ready</p>
+                <p className="eyebrow">Demo link ready</p>
                 <label className="result__label" htmlFor="ps-link">Sharing link</label>
                 <div className="linkbox">
                   <input id="ps-link" readOnly value={link.url} onFocus={(e) => e.target.select()} />
-                  <button type="button" className="btn btn--solid btn--sm" onClick={copy}>
+                  <button type="button" className="btn btn--dark btn--sm" onClick={copy}>
                     {copied ? 'Copied' : 'Copy'}
                   </button>
                 </div>
                 <dl className="result__facts">
                   <div>
-                    <dt className="mono">Expires</dt>
+                    <dt>Expires</dt>
                     <dd>{formatExpiry(link.expiresAt)}</dd>
                   </div>
                   <div>
-                    <dt className="mono">Remaining</dt>
+                    <dt>Remaining</dt>
                     <dd className="mono">{formatRemaining(link.expiresAt - now)}</dd>
                   </div>
                 </dl>
@@ -229,7 +224,7 @@ export function ShareDemo({ reduced }) {
                   This link doesn't carry your file. It opens the page recipients see once a link has expired.
                 </p>
                 <div className="share__actions">
-                  <button type="button" className="btn btn--ghost" onClick={simulateExpiry}>Simulate expiry</button>
+                  <button type="button" className="btn btn--quiet" onClick={simulateExpiry}>Simulate expiry</button>
                   <button type="button" className="btn btn--text" onClick={reset}>Start over</button>
                 </div>
               </div>
@@ -237,15 +232,15 @@ export function ShareDemo({ reduced }) {
 
             {phase === 'expired' && (
               <div className="result">
-                <p className="mono result__k result__k--warn">Simulated expiry</p>
+                <p className="eyebrow eyebrow--warn">Simulated expiry</p>
                 <h3 className="result__title">The link has stopped working.</h3>
                 <p>
                   In the real product, the server refuses the link from this point. Stored copies are then deleted
                   within [DELETION WINDOW]. Anything a recipient already downloaded stays with them.
                 </p>
                 <div className="share__actions">
-                  <a className="btn btn--ghost" href={`#/s/${link.id}`}>See what recipients see</a>
-                  <button type="button" className="btn btn--accent" onClick={reset}>Share another file</button>
+                  <a className="btn btn--quiet" href={`#/s/${link.id}`}>See what recipients see</a>
+                  <button type="button" className="btn btn--primary" onClick={reset}>Share another file</button>
                 </div>
               </div>
             )}

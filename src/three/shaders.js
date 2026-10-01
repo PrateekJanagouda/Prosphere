@@ -1,5 +1,4 @@
-// GLSL for the Prosphere scenes. Everything is procedural: no textures,
-// no file data — decorative visuals never touch user content.
+// GLSL shared by the Prosphere scene. Decorative only: never fed user file data.
 
 // Ashima Arts 3D simplex noise (MIT).
 export const noise = /* glsl */ `
@@ -45,98 +44,5 @@ float snoise(vec3 v){
   vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);
   m=m*m;
   return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
-}
-`;
-
-// The sphere: a noise-displaced shell, dark at the core, bright at the rim
-// (fresnel), with slow latitude scan-lines drifting through it.
-export const orbVertex = /* glsl */ `
-${noise}
-uniform float uTime;
-uniform float uAmp;
-varying vec3 vNormal;
-varying vec3 vView;
-varying vec3 vPos;
-varying float vNoise;
-void main(){
-  float n = snoise(normal * 1.4 + vec3(0.0, uTime * 0.16, uTime * 0.07));
-  vNoise = n;
-  vec3 p = position + normal * n * uAmp;
-  vPos = p;
-  vec4 mv = modelViewMatrix * vec4(p, 1.0);
-  vView = normalize(-mv.xyz);
-  vNormal = normalize(normalMatrix * normal);
-  gl_Position = projectionMatrix * mv;
-}
-`;
-
-export const orbFragment = /* glsl */ `
-uniform float uTime;
-uniform vec3 uDeep;
-uniform vec3 uRim;
-varying vec3 vNormal;
-varying vec3 vView;
-varying vec3 vPos;
-varying float vNoise;
-void main(){
-  float fres = pow(1.0 - max(dot(normalize(vNormal), normalize(vView)), 0.0), 2.4);
-  float f = fract(vPos.y * 6.0 + vNoise * 0.9 - uTime * 0.05);
-  float band = smoothstep(0.93, 1.0, f) * (0.2 + fres);
-  vec3 col = mix(uDeep, uRim, fres);
-  col += uRim * band * 0.9;
-  float alpha = clamp(0.12 + fres * 0.95 + band * 0.45, 0.0, 1.0);
-  gl_FragColor = vec4(col, alpha);
-}
-`;
-
-// A generic document card that dissolves along a noise front.
-// uDissolve: -0.1 = whole card, 1.1 = gone. The front glows as it burns through.
-export const docVertex = /* glsl */ `
-varying vec2 vUv;
-void main(){
-  vUv = uv;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}
-`;
-
-export const docFragment = /* glsl */ `
-${noise}
-uniform float uDissolve;
-uniform float uSeed;
-uniform vec3 uAccent;
-varying vec2 vUv;
-void main(){
-  vec2 uv = vUv;
-  float n = snoise(vec3(uv * vec2(3.0, 4.0), uSeed)) * 0.5 + 0.5;
-  n = mix(n, 1.0 - uv.y, 0.35);              // burn mostly top-down
-  if (n < uDissolve) discard;
-
-  vec3 paper = vec3(0.86, 0.90, 0.95);
-  vec3 ink = vec3(0.45, 0.52, 0.63);
-  vec3 col = paper;
-
-  // header bar
-  float head = step(0.14, uv.x) * step(uv.x, 0.52) * step(0.80, uv.y) * step(uv.y, 0.86);
-  col = mix(col, uAccent * 0.75, head);
-
-  // text lines
-  float rows = (1.0 - uv.y) * 11.0;
-  float row = floor(rows);
-  float inRow = fract(rows);
-  float lineLen = 0.86 - mod(row * 7.0, 3.0) * 0.11;
-  float line = step(0.42, inRow) * step(inRow, 0.58)
-             * step(0.14, uv.x) * step(uv.x, lineLen)
-             * step(3.0, row) * step(row, 9.0);
-  col = mix(col, ink, line);
-
-  // hairline border
-  float inside = step(0.03, uv.x) * step(uv.x, 0.97) * step(0.025, uv.y) * step(uv.y, 0.975);
-  col = mix(uAccent * 0.55, col, inside);
-
-  // glowing dissolve front
-  float edge = 1.0 - smoothstep(0.0, 0.07, n - uDissolve);
-  col = mix(col, uAccent * 1.6, edge * step(-0.05, uDissolve));
-
-  gl_FragColor = vec4(col, 1.0);
 }
 `;

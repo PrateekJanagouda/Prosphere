@@ -7,7 +7,7 @@
 ## Stack
 
 - React 18 + Vite 5
-- Three.js through `@react-three/fiber`, with custom GLSL (simplex-noise sphere and dissolving document cards)
+- Three.js through `@react-three/fiber` and `drei`: a single fixed scene behind the page (a glass sphere and paper cards that dissolve through a patched `MeshStandardMaterial`)
 - Self-hosted fonts via Fontsource (no third-party font requests), and no analytics or trackers
 
 ## Run
@@ -22,7 +22,7 @@ npm run build    # static output in dist/
 
 ```
 src/
-  three/        HeroScene (orb + orbiting docs), CapsuleScene (share panel), shaders
+  three/        Experience (the one scene), store (share state → scene), shaders (noise)
   components/   Page sections, ShareDemo (state machine: compose → ready → expired), ExpiredPage
   hooks/        useReducedMotion, useNow
   lib/format.js Byte/date formatting, CSPRNG link ids
@@ -30,9 +30,9 @@ src/
 
 ## Production notes
 
+- **How the 3D follows the layout:** sections place invisible `data-orb="<stage>"` boxes. Each frame the scene reads where those boxes are on screen, moves the sphere to the one nearest the centre, and blends the card formations by stage. The 3D placement comes from CSS, so it works at every breakpoint.
 - Three.js is lazy-loaded and split into its own chunk, so text renders before WebGL.
-- The hero stops rendering when scrolled out of view (IntersectionObserver → `frameloop="never"`).
-- `prefers-reduced-motion` freezes the scenes (`frameloop="demand"`) and disables CSS animation.
+- `prefers-reduced-motion` switches the canvas to on-demand rendering (it redraws on scroll and state changes only) and turns off CSS animation.
 - If WebGL fails, an error boundary drops the scene and leaves the page fully usable.
 - Link ids come from `crypto.getRandomValues` with a 64-symbol alphabet, so there's no modulo bias.
 

@@ -9,7 +9,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Three.js is the heaviest dependency; isolate it so the page shell loads first.
-        manualChunks: { three: ['three', '@react-three/fiber'] },
+        manualChunks: { three: ['three', '@react-three/fiber', '@react-three/drei'] },
       },
     },
   },
