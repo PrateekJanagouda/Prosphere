@@ -18,6 +18,11 @@ npm run dev      # http://localhost:5173
 npm run build    # static output in dist/
 ```
 
+## Deploy
+
+Every push to `main` builds the site and publishes it to GitHub Pages (`.github/workflows/deploy.yml`).
+Live at https://prateekjanagouda.github.io/Prosphere/
+
 ## Structure
 
 ```
