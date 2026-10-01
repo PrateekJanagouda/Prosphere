@@ -9,7 +9,7 @@ export function Footer() {
           <span>Prosphere</span>
         </div>
         {/* Privacy, terms and support links go here once those pages exist. Don't link placeholders. */}
-        <p className="footer__note">Demo build v0.2. Privacy, terms and support pages will be linked here before launch.</p>
+        <p className="footer__note">Preview build v0.3. Privacy, terms and support pages will be linked here before launch.</p>
       </div>
     </footer>
   );

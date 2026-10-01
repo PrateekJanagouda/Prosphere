@@ -11,7 +11,7 @@ export function Header() {
         <nav className="header__nav" aria-label="Primary">
           <a href="#how">How it works</a>
           <a href="#privacy" className="hide-sm">Privacy</a>
-          <a href="#share" className="btn btn--primary btn--sm">Share a file</a>
+          <a href="#try" className="btn btn--primary btn--sm">Try the preview</a>
         </nav>
       </div>
     </header>

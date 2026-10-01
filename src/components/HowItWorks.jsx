@@ -1,17 +1,16 @@
 import { SectionHead } from './SectionHead';
 
 const STEPS = [
-  ['Pick a file', 'Choose a document from your device. You see its name and size before anything happens.'],
-  ["Decide how long it's available", 'Choose an availability period. You see the exact expiry date, time and timezone before you share.'],
-  ['Send the link', 'Send the link to whoever needs it. When the time is up, the link stops working for everyone.'],
+  ['Add a statement', 'Drop in a credit card statement. It opens on your device and is never uploaded.'],
+  ['Identifiers come off', 'Card numbers, names, addresses and account IDs are replaced with placeholders before anything else happens.'],
+  ['Get the insight', 'Only the cleaned-up transactions are analysed. Fees, subscriptions and spending patterns come back, with the real details filled in on your screen.'],
 ];
-
 export function HowItWorks() {
   return (
     <section id="how" className="section" aria-labelledby="how-title">
       <div className="split">
         <div className="split__text">
-          <SectionHead eyebrow="How it works" title="Three steps, then it's gone." id="how-title" />
+          <SectionHead eyebrow="How it works" title="Three steps. Your data stays put." id="how-title" />
           <ol className="steps">
             {STEPS.map(([title, body], i) => (
               <li key={title} className="step glass reveal" style={{ '--d': `${i * 90}ms` }}>

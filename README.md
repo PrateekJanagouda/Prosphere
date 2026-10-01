@@ -1,8 +1,8 @@
 # Prosphere
 
-**Share what matters. Not forever.** This is a demo of Prosphere, a service for sharing personal files through time-limited links.
+**Get the insight. Not the exposure.** Prosphere is a planned product that reads personal documents, starting with credit card statements, on your own device. It removes identifiers before any AI analysis.
 
-> **Demo build.** Nothing is uploaded. The share flow reads only a file's name and size, in your browser. The links it creates don't carry a file, and they open the page recipients see after a link expires.
+> **Preview build.** Nothing is analysed or uploaded. The try-it flow reads only a file's name and size, and the redaction table shows example rows, not the user's statement.
 
 ## Stack
 
@@ -28,7 +28,7 @@ Live at https://prateekjanagouda.github.io/Prosphere/
 ```
 src/
   three/        Experience (the one scene), store (share state → scene), shaders (noise)
-  components/   Page sections, ShareDemo (state machine: compose → ready → expired), ExpiredPage
+  components/   Page sections, InsightDemo (compose → preview → cleared)
   hooks/        useReducedMotion, useNow
   lib/format.js Byte/date formatting, CSPRNG link ids
 ```
@@ -39,7 +39,6 @@ src/
 - Three.js is lazy-loaded and split into its own chunk, so text renders before WebGL.
 - `prefers-reduced-motion` switches the canvas to on-demand rendering (it redraws on scroll and state changes only) and turns off CSS animation.
 - If WebGL fails, an error boundary drops the scene and leaves the page fully usable.
-- Link ids come from `crypto.getRandomValues` with a 64-symbol alphabet, so there's no modulo bias.
 
 ## Before this becomes a real product
 

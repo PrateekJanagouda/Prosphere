@@ -2,20 +2,19 @@ import { SectionHead } from './SectionHead';
 
 const QA = [
   [
-    'What happens when a link expires?',
-    'The link stops working and anyone who opens it sees an expired page. Stored copies are then deleted on a separate schedule ([DELETION WINDOW]). Expiry and deletion are two different steps, and we tell you about both.',
+    'Does my statement get uploaded?',
+    "No. The plan is to open and clean it on your device. If any step ever needs a server, this page will say so before you use it.",
   ],
-  ['Where is my file stored?', 'Temporarily on [STORAGE PROVIDER / REGION], only while your link is active. In this demo, nothing is stored anywhere.'],
-  ['Can recipients keep a copy?', 'Yes. Anyone who downloads the file or takes a screenshot keeps that copy. Expiry has no effect on it.'],
-  ['Is this live?', "Not yet. This is a demo of the experience. The share button creates a sample link that doesn't carry a file."],
+  ['What does the AI actually see?', 'Merchants, amounts and dates. Your card number, name and account details are swapped for placeholders first.'],
+  ['Can it still learn things about me?', 'Spending patterns are personal even without a name. Removing identifiers is the minimum; running the analysis on your device is the goal.'],
+  ['Is this live?', "Not yet. This page is a preview. Nothing you add here is analysed or sent anywhere."],
 ];
-
 export function Faq() {
   return (
     <section id="faq" className="section section--faq" aria-labelledby="faq-title">
       <div className="faq-wrap">
         <div className="orb-slot orb-slot--small" data-orb="4" />
-        <SectionHead eyebrow="Questions" title="Before you share" id="faq-title" />
+        <SectionHead eyebrow="Questions" title="Before you try it" id="faq-title" />
         <div className="faq glass reveal">
           {QA.map(([q, a], i) => (
             <details key={q} className="faq__item" open={i === 0}>

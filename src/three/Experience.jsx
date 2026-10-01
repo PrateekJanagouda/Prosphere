@@ -11,7 +11,7 @@ import { onSceneChange, sceneState } from './store';
   reads where those anchors are on screen and moves the sphere there, so the
   3D layout follows the CSS layout at every breakpoint for free.
 
-  Stages: 0 hero · 1 how it works · 2 privacy · 3 share · 4 end (everything gone)
+  Stages: 0 hero · 1 how it works · 2 privacy · 3 try-it demo · 4 end (everything gone)
 */
 
 export const BG = '#E9EDF2';
@@ -165,7 +165,7 @@ function cardPose(i, stage, t, c, R, capsule, out) {
       return out;
     }
     case 3: {
-      // One card for the file in the share demo; the rest are gone.
+      // One card for the file in the try-it demo; the rest are gone.
       if (i === 0) {
         out.set(c.x, c.y + Math.sin(t * 0.8) * 0.04 * R, 0.1 * R);
         out.rot.set(0.05, Math.sin(t * 0.5) * 0.45, 0);
